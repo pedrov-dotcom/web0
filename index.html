@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal do Aluno | Frequência</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --blue: #0ea5e9; --red: #ef4444; --green: #10b981; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 2rem; }
+        .box { background: var(--card); padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        button { width: 100%; padding: 10px; background: var(--blue); color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-top: 20px; }
+        .dia { background: #334155; padding: 10px; text-align: center; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2>Consulta de Frequência</h2>
+        <input type="text" id="nomeAluno" placeholder="Nome completo do aluno">
+        <button onclick="consultar()">Consultar</button>
+    </div>
+
+    <div id="resultado" class="box" style="margin-top:20px; display:none;">
+        <h3 id="nomeExibido"></h3>
+        <div class="grid" id="gridFrequencia"></div>
+    </div>
+
+    <script>
+        async function consultar() {
+            const nome = document.getElementById('nomeAluno').value;
+            // Substitua pela URL que você obteve no Google Apps Script
+            const url = "https://script.google.com/macros/s/AKfycbyxuHUwbI4a4Af-casnjI-OAm_UsKpVHG-JH1nTlQUqyStOpVoIQccp8YOigkXx75UT/exec" + encodeURIComponent(nome);
+            
+            const res = await fetch(url);
+            const dados = await res.json();
+
+            if (dados.erro) { alert("Aluno não encontrado."); return; }
+
+            document.getElementById('resultado').style.display = 'block';
+            document.getElementById('nomeExibido').innerText = dados[0]; // Nome na coluna A
+            
+            const grid = document.getElementById('gridFrequencia');
+            grid.innerHTML = '';
+
+            // As colunas de datas começam no índice 2 (a partir do seu CSV)
+            for(let i = 2; i < dados.length; i++) {
+                const status = dados[i];
+                const cor = (status === 'P') ? 'var(--green)' : 'var(--red)';
+                grid.innerHTML += `<div class="dia" style="border-bottom: 3px solid ${cor}">${status}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
